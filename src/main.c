@@ -191,6 +191,7 @@ ld_num parser(const char* expr)
     return num_stack[num_top];
 }
 
+#ifndef GTEST
 int main(int argc, char* argv[])
 {
     char expr[EXPR_SIZE];
@@ -222,3 +223,4 @@ int main(int argc, char* argv[])
 
     return 0;
 }
+#endif

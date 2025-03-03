@@ -1,2 +1,6 @@
 build/
 googletest/
+__pycache__/
+myvenv/
+.pytest_cache/
+
