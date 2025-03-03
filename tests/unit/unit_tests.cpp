@@ -1,3 +1,4 @@
+#define GTEST
 #include <gtest/gtest.h>
 
 extern "C" {
@@ -38,6 +39,7 @@ TEST(ApplyOpTest, HandlesFloatDivide)
 
 TEST(ParserTest, HandlesExpression)
 {
+    float_mode = 0;
     const char* expr = "3 + 2*(6/2)";
     ld_num result = parser(expr);
     EXPECT_EQ(result.l, 9);

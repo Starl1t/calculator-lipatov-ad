@@ -88,7 +88,7 @@ void apply_op()
     case '/': {
         num_top++;
         if (float_mode) {
-            if (fabs(b.l) < 0.0001) {
+            if (fabs(b.d) < 0.0001) {
                 exit(3);
             }
 
