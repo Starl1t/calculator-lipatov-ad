@@ -114,7 +114,8 @@ ld_num parser(const char* expr)
     ld_num num;
     num.l = 1;
     long expecting_number = 1;
-    long open_parens = 0;
+    long opened_parens = 0;
+    long closed_parens = 0;
 
     while (*expr) {
         if (isspace(*expr)) {
@@ -122,6 +123,10 @@ ld_num parser(const char* expr)
             continue;
         }
         if (isdigit(*expr)) {
+            if (!expecting_number) {
+                exit(2);
+            }
+
             if (float_mode) {
                 num.d = 0;
 
@@ -149,9 +154,13 @@ ld_num parser(const char* expr)
 
             op_top++;
             op_stack[op_top] = *expr;
-            open_parens++;
+            opened_parens++;
         } else if (*expr == ')') {
             if (expecting_number) {
+                exit(2);
+            }
+
+            if (opened_parens <= closed_parens) {
                 exit(2);
             }
 
@@ -160,7 +169,7 @@ ld_num parser(const char* expr)
             }
 
             op_top--;
-            open_parens--;
+            closed_parens++;
         } else if (*expr == '+' || *expr == '-' || *expr == '*' || *expr == '/') {
             if (expecting_number) {
                 exit(2);
@@ -180,8 +189,8 @@ ld_num parser(const char* expr)
         expr++;
     }
 
-    if (expecting_number == 1 || open_parens != 0) {
-        exit(1);
+    if ((expecting_number == 1) || (opened_parens != closed_parens)) {
+        exit(2);
     }
 
     while (op_top >= 0) {
