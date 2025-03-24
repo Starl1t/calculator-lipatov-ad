@@ -1,14 +1,26 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
+import json
 import subprocess
+from urllib.parse import urlparse, parse_qs
 
 
-class RequestHandler(BaseHTTPRequestHandler):
+class CalculatorHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         # Handling POST requests
+        parsed_url = urlparse(self.path)
+        if parsed_url.path != "/calc":
+            self.send_error(404, "Not Found")
+            return
 
-        use_float = False
+        query_params = parse_qs(parsed_url.query)
+        use_float = query_params.get("float", ["float"])[0] == "true"
+        print(use_float)
 
-        expression = "12+3"
+        content_length = int(self.headers.get("Content-Length"))
+        post_data = self.rfile.read(content_length)
+        data = json.loads(post_data)
+        expression = data.get("expression")
+        print(expression)
 
         args = ["../build/app.exe"]
         if use_float:
@@ -21,15 +33,14 @@ class RequestHandler(BaseHTTPRequestHandler):
             capture_output=True
         )
 
-        ans = res.stdout
-        print(ans)
-
         self.send_response(200)
-        self.send_header("Content-type", "text/html")
+        self.send_header("Content-type", "application/json")
         self.end_headers()
-        self.wfile.write(ans.encode())
+        
+        response = {"result": res.stdout}
+        self.wfile.write(json.dumps(response).encode())
 
 
 # Starting server on port 8000
-server = HTTPServer(("localhost", 8000), RequestHandler)
+server = HTTPServer(("localhost", 8000), CalculatorHandler)
 server.serve_forever()
