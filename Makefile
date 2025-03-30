@@ -24,6 +24,7 @@ clean:
 	rm -rf $(VENV)
 	rm -rf tests/integration/__pycache__
 	rm -rf .pytest_cache
+	rm -rf app.log
 	
 run-int: build/app.exe
 	build/app.exe
@@ -41,10 +42,14 @@ $(VENV)/bin/activate:
 # Installs Pytest
 venv: $(VENV)/bin/activate
 	$(PIP) install pytest
+	$(PIP) install structlog
 
 # Executes integration tests
 run-integration-tests: build/app.exe venv
 	$(PYTEST) tests/integration/integration_tests.py
+	
+run-server: build/app.exe venv
+	$(PYTHON) server/server.py
 
 build/app.exe:
 	gcc $(CFLAGS) src/main.c -o build/app.exe
